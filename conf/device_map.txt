@@ -1,0 +1,5 @@
+A4:C1:38:30:E1:7F Balkony
+A4:C1:38:5A:10:E4 Fridge
+A4:C1:38:13:38:77 Bathroom
+A4:C1:38:1D:53:E0 Living Room
+A4:C1:38:BB:E1:C1 Corridor

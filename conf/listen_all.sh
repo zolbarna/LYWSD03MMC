@@ -13,7 +13,7 @@ mv /tmp/LYWSD03MMC_old.log /tmp/LYWSD03MMC.log
 #-Read up the valuemapping file (Associate device names to MAC address)
 declare -A mapping
 
-for value in $(cat /tmp/device_map.txt); do
+for value in $(cat /etc/conf/device_map.txt); do
         index="${value:0:17}"
         name="${value:18}"
         mapping+=([${index}]=${name})
@@ -31,56 +31,46 @@ done
 #-Get back the current value(s), and store it
 
 for current in $(python3 /etc/ATC_MiThermometer/python-interface/listen_all.py); do
-        if [[ ! -z "${current}" ]];
+#        if [[ ! -z "${current}" ]];
+# This was an old method where I simply checked if we have any result. 
+# Unfortunately the py script returned back an error with some unexpected error
+# which went straight into the script.
+# Safer way: check if the input contains the part of my MI  mac addresses
+	if [[ "${$current}" == *"A4:C1:38"*  ]]
         then
                 echo $now "$current" >> /tmp/LYWSD03MMC.log
-                echo $now "$current"
+                #echo $now "$current"
         fi
 done
 
-IFS=$oldifs
-
-
-
-declare -a global_mac
 txt="# HELP\n"
 
-while read line; do
-        read -a output <<< $line
-        mac=${output[3]}
-        match=0
-        for element in "${global_mac[@]}"; do
-                if [ "$element" == "$mac" ];
-                then 
-                        #echo "Match: $element $mac"
-                        match=1
-                fi
-        done
+for line in $(tac /tmp/LYWSD03MMC.log |cut -d ' ' -f 4,6,8,10,12,14 | sort -u -k1,1); do
 
-        if [ $match -eq 0 ];
+        IFS=$oldifs
+        read -a output <<< $line
+
+        mac=${output[0]}
+        name=${mapping[$mac]}
+        temp=${output[1]}
+        humi=${output[2]}
+        batt=${output[4]}
+        rssi=${output[5]}
+
+        if [[ ! -z "${mac}" || ! -z "{$name}" || ! -z "{$temp}" || ! -z "{$humi}" ]];
         then
-                #echo "New element: $mac"
-                global_mac+=($mac)
-                name=${mapping[$mac]}
-                temp=${output[5]}
-                humi=${output[7]}
-                batt=${output[11]}
-                rssi=${output[13]}
+
                 echo $mac $name $temp $humi $batt $rssi
                 txt+="# TYPE LYWSD03MMC_temperature gauge\n"
-                txt+="LYWSD03MMC_temperature{device_mac=\"$mac\",device_name=\"$name\"}   $temp\n"
+                txt+="LYWSD03MMC_temperature{device_mac=\"$mac\",device_name=\"$name\"} $temp\n"
                 txt+="# TYPE LYWSD03MMC_humidity gauge\n"
                 txt+="LYWSD03MMC_humidity{device_mac=\"$mac\",device_name=\"$name\"} $humi\n"
                 txt+="# TYPE LYWSD03MMC_battery_voltage gauge\n"
                 txt+="LYWSD03MMC_battery_voltage{device_mac=\"$mac\",device_name=\"$name\"} $batt\n"
                 txt+="# TYPE LYWSD03MMC_rssi_level gauge\n"
                 txt+="LYWSD03MMC_rssi_level{device_mac=\"$mac\",device_name=\"$name\"} $rssi\n"
-
         fi
-        #echo $mac $temp $humi $batt
-done < <(cat /tmp/LYWSD03MMC.log |tac)
-
-#echo ${global_mac[@]}
+done 
 
 #-Output goes to the nginx www root
 

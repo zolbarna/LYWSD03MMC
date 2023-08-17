@@ -1,17 +1,23 @@
 #!/bin/bash
 # start services
-printf "Starting up the DBUS Service... "
+printf "Init file creations....\n"
+touch /tmp/restart.log
+touch /tmp/LYWSD03MMC.log
+printf "Starting up the DBUS Service...\n"
 service dbus start
-printf "Starting up the Bluetooth Service... "
+printf "Starting up the Bluetooth Service...\n"
 service bluetooth start
-printf "DBUS service status... "
+printf "DBUS service status...\n"
 service dbus status
 sleep 1
-printf "Bluetooth service status... "
+printf "Bluetooth service status...\n"
 service bluetooth status
 sleep 5
-printf "Starting NGINX on port 9198 ...\n"
+printf "Starting NGINX on port 9198...\n"
 exec /usr/sbin/nginx &
+sleep 1
+printf "Starting BT monitor...\n"
+exec /etc/conf/bt_check.sh &
 
 #printf "Starting php-fpm8...\n"
 #exec /usr/sbin/php-fpm8 &
