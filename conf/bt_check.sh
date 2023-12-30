@@ -4,9 +4,9 @@ sleep 60
 
 while true; do
 
-        if [ -f /tmp/LYWSD03MMC.log ]; 
+        if [ -f /dev/shm/LYWSD03MMC.log ]; 
         then
-                mod=$(date --utc --reference=tmp/LYWSD03MMC.log +%s)
+                mod=$(date --utc --reference=dev/shm/LYWSD03MMC.log +%s)
                 now=$(date +%s)
 
                 diff=$(($now - $mod))
@@ -15,7 +15,7 @@ while true; do
                         service dbus restart;
                         sleep 1;
                         service bluetooth restart;
-                        echo "Service restarted at $now" >> tmp/restart.log
+                        echo "Service restarted at $now" >> dev/shm/restart.log
                 fi
         fi
         sleep 300

@@ -6,8 +6,8 @@ now=$(date "+%Y-%m-%d %H%M%S")
 
 #-Retention. Keep the last 400 lines only (Minimum 10 minutes history)
 
-tail -n 400 /tmp/LYWSD03MMC.log > /tmp/LYWSD03MMC_old.log
-mv /tmp/LYWSD03MMC_old.log /tmp/LYWSD03MMC.log
+tail -n 400 /dev/shm/LYWSD03MMC.log > /dev/shm/LYWSD03MMC_old.log
+mv /dev/shm/LYWSD03MMC_old.log /dev/shm/LYWSD03MMC.log
 
 
 #-Read up the valuemapping file (Associate device names to MAC address)
@@ -36,16 +36,16 @@ for current in $(python3 /etc/ATC_MiThermometer/python-interface/listen_all.py);
 # Unfortunately the py script returned back an error with some unexpected error
 # which went straight into the script.
 # Safer way: check if the input contains the part of my MI  mac addresses
-	if [[ "${$current}" == *"A4:C1:38"*  ]]
+	if [[ "${current}" == *"A4:C1:38"*  ]]
         then
-                echo $now "$current" >> /tmp/LYWSD03MMC.log
+                echo $now "$current" >> /dev/shm/LYWSD03MMC.log
                 #echo $now "$current"
         fi
 done
 
 txt="# HELP\n"
 
-for line in $(tac /tmp/LYWSD03MMC.log |cut -d ' ' -f 4,6,8,10,12,14 | sort -u -k1,1); do
+for line in $(tac /dev/shm/LYWSD03MMC.log |cut -d ' ' -f 4,6,8,10,12,14 | sort -u -k1,1); do
 
         IFS=$oldifs
         read -a output <<< $line
@@ -72,6 +72,6 @@ for line in $(tac /tmp/LYWSD03MMC.log |cut -d ' ' -f 4,6,8,10,12,14 | sort -u -k
         fi
 done 
 
-#-Output goes to the nginx www root
-
-echo -e "$txt" > /usr/share/nginx/www/metrics/index.html
+#-Output goes to the /dev/shm/index.html. Symlink from NGINX www root folder had been created in a early stage
+# Original: echo -e "$txt" > /usr/share/nginx/www/metrics/index.html
+echo -e "$txt" > /dev/shm/index.html

@@ -4009,4 +4009,3 @@ sjcl.ecc.ecdsa.secretKey.prototype = {
     return "ecdsa";
   }
 };
-

@@ -1,8 +1,9 @@
 #!/bin/bash
 # start services
 printf "Init file creations....\n"
-touch /tmp/restart.log
-touch /tmp/LYWSD03MMC.log
+ln -s /dev/shm/index.html /usr/share/nginx/www/metrics/index.html
+touch /dev/shm/restart.log
+touch /dev/shm/LYWSD03MMC.log
 printf "Starting up the DBUS Service...\n"
 service dbus start
 printf "Starting up the Bluetooth Service...\n"

@@ -19,7 +19,8 @@ COPY conf/device.py /usr/lib/python3/dist-packages/bleak/backends/device.py
 
 COPY conf/* /etc/conf
 
-COPY conf/atc1441_TelinkFlasher/* /usr/share/nginx/www/flasher/
+COPY conf/atc1441_TelinkFlasher/* /usr/share/nginx/www/ATC_flasher/
+COPY conf/pvvx_flasher /usr/share/nginx/www/PVVX_flasher/
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 COPY conf/default.conf /etc/nginx/http.d/default.conf
 COPY ATC_MiThermometer/ /etc/ATC_MiThermometer
